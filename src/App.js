@@ -1,46 +1,40 @@
 import React from 'react';
 import './App.css';
-import TodoItem from "./TodoItem"
-import todosData from './todosData';
+import Card from "./CardList";
+import SearchBox from "./SearchBox";
 
 class App extends React.Component {
-    constructor() {
-      super()
-      this.state = {
-        todos: todosData
-      }
-      this.handleClick = this.handleClick.bind(this)
-    }
+  constructor() {
+    super();
+    this.state = {
+      monsters: [],
+      SearchField: ""
+    };
+    this.handleChange = this.handleChange.bind(this)
+  }
+  handleChange(event) {
+    this.setState({SearchField: event.target.value} )
+  }
 
-    // created a method to make the input changes when completed or not ie to modify the datas in the state indirectly
-    handleClick(id) {
-      this.setState(prevState => {
-        const updatedState = prevState.todos.map(todo => {
-          if (todo.id === id) {
-            return {
-              ...todo,
-              completed: !todo.completed
-            }
-          } 
-          return todo
-        })
-        return {
-          todos: updatedState
-        }
-      })
-    }
+  componentDidMount() {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then(response => response.json())
+      .then(user => this.setState({ monsters: user }));
+  }
   render() {
-    //created a variable where i map the data collected from my state to generate a new array of data
-    const todoList = this.state.todos.map(item => <TodoItem key={item.id} item={item} handleClick={this.handleClick}/>)
-    return (
-      <div className="Todo">
-          <div className="TodoContainer">
-            <h1>My Todo List for the day</h1>
-              {todoList}
-            </div>
-      </div>
+    const { monsters, SearchField } = this.state;
+    const FilteredMonster = monsters.filter(monster =>
+     monster.name.toLowerCase().includes(SearchField.toLowerCase())
     )
+    return (
+      <div>
+        <h1 className="appHeader">Mlg Monsters</h1>
+        <SearchBox handleChange={this.handleChange} />
+        <Card monster={FilteredMonster} />
+      </div>
+    );
   }
 }
+
 
 export default App
